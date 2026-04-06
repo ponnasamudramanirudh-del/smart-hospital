@@ -159,7 +159,7 @@ input, select {
 function findDoctors(){
     let disease = document.getElementById("disease").value;
 
-    fetch("http://127.0.0.1:5000/get_doctors", {
+    fetch("https://smart-hospital-ifro.onrender.com/get_doctors", {
         method:"POST",
         headers:{"Content-Type":"application/json"},
         body: JSON.stringify({disease})
@@ -196,7 +196,7 @@ function book(doctor,hospital,time){
     let email = document.getElementById("email").value;
     let date = document.getElementById("date").value;
 
-    fetch("http://127.0.0.1:5000/book",{
+    fetch("https://smart-hospital-ifro.onrender.com/book",{
         method:"POST",
         headers:{"Content-Type":"application/json"},
         body: JSON.stringify({patient:name,email,doctor,hospital,date,time})
