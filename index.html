@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Smart Hospital Network</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Poppins', sans-serif;
+}
+
+body {
+    height: 100vh;
+    background: url('https://images.unsplash.com/photo-1586773860418-d37222d8fce3?q=80&w=1920') no-repeat center/cover;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+body::before {
+    content: "";
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.55);
+}
+
+.container {
+    position: relative;
+    width: 450px;
+    padding: 30px;
+    border-radius: 16px;
+    background: rgba(255,255,255,0.95);
+    box-shadow: 0 10px 40px rgba(0,0,0,0.4);
+}
+
+h1 {
+    text-align: center;
+    color: #2c3e50;
+}
+
+.subtitle {
+    text-align: center;
+    font-size: 13px;
+    color: #7f8c8d;
+    margin-bottom: 15px;
+}
+
+input, select {
+    width: 100%;
+    padding: 12px;
+    margin-top: 10px;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+}
+
+.main-btn {
+    width: 100%;
+    margin-top: 15px;
+    padding: 12px;
+    border-radius: 8px;
+    border: none;
+    background: #2c7be5;
+    color: white;
+    cursor: pointer;
+}
+
+.doctor-card {
+    margin-top: 15px;
+    padding: 15px;
+    border-radius: 12px;
+    background: #f4f6f9;
+    text-align: center;
+}
+
+/* SAME ICON FOR ALL DOCTORS */
+.doctor-icon {
+    width: 60px;
+    margin-bottom: 10px;
+}
+
+.slot {
+    margin: 4px;
+    padding: 6px 10px;
+    border-radius: 6px;
+    border: none;
+    background: #2c7be5;
+    color: white;
+    cursor: pointer;
+}
+
+.success-card {
+    margin-top: 15px;
+    padding: 15px;
+    border-radius: 12px;
+    background: linear-gradient(135deg,#00c6ff,#0072ff);
+    color: white;
+    text-align: center;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<h1>🏥 Smart Hospital</h1>
+<div class="subtitle">AI Powered Healthcare System</div>
+
+<input id="name" placeholder="👤 Patient Name">
+<input id="email" placeholder="📧 Email">
+<input type="date" id="date">
+
+<select id="disease">
+<option>Fever</option>
+<option>Cold</option>
+<option>Flu</option>
+<option>Diabetes</option>
+<option>Hypertension</option>
+<option>Heart Attack</option>
+<option>Stroke</option>
+<option>Asthma</option>
+<option>Kidney Issues</option>
+<option>Back Pain</option>
+<option>Arthritis</option>
+<option>Migraine</option>
+<option>Skin Allergy</option>
+<option>Acne</option>
+<option>Depression</option>
+<option>Anxiety</option>
+<option>Eye Infection</option>
+<option>Ear Pain</option>
+<option>Dental Issues</option>
+<option>Thyroid</option>
+<option>Obesity</option>
+
+<!-- Child diseases -->
+<option>Child Fever</option>
+<option>Chickenpox</option>
+<option>Measles</option>
+<option>Growth Issues</option>
+<option>Child Asthma</option>
+<option>Nutrition Deficiency</option>
+</select>
+
+<button class="main-btn" onclick="findDoctors()">Find Doctors</button>
+
+<div id="doctors"></div>
+<div id="result"></div>
+
+</div>
+
+<script>
+
+function findDoctors(){
+    let disease = document.getElementById("disease").value;
+
+    fetch("http://127.0.0.1:5000/get_doctors", {
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body: JSON.stringify({disease})
+    })
+    .then(res=>res.json())
+    .then(data=>{
+        let html="";
+
+        data.forEach(doc=>{
+            html += `
+            <div class="doctor-card">
+
+                <img src="https://cdn-icons-png.flaticon.com/512/3774/3774299.png" class="doctor-icon">
+
+                <h3>${doc.name}</h3>
+                <p>${doc.hospital}</p>
+                <p>${doc.specialty}</p>
+
+                <p>⭐ 4.5 | 🕒 10+ yrs experience</p>
+
+                ${doc.slots.map(s =>
+                    `<button class="slot" onclick="book('${doc.name}','${doc.hospital}','${s}')">${s}:00</button>`
+                ).join("")}
+
+            </div>`;
+        });
+
+        document.getElementById("doctors").innerHTML = html;
+    });
+}
+
+function book(doctor,hospital,time){
+    let name = document.getElementById("name").value;
+    let email = document.getElementById("email").value;
+    let date = document.getElementById("date").value;
+
+    fetch("http://127.0.0.1:5000/book",{
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body: JSON.stringify({patient:name,email,doctor,hospital,date,time})
+    })
+    .then(res=>res.json())
+    .then(data=>{
+        document.getElementById("result").innerHTML =
+        `<div class="success-card">
+        ✅ Appointment Confirmed<br><br>
+        Thank you, <b>${name}</b><br>
+        Your appointment at <b>${hospital}</b> is confirmed.<br><br>
+        📧 Confirmation sent to your email
+        </div>`;
+    });
+}
+
+</script>
+
+</body>
+</html>
